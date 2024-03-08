@@ -190,6 +190,7 @@ writing = False
 
 #connect to the unit
 if realWrite:
+# Replace "Auto Mňau" with the name of your hub.
 	conn = get_connection_bleak(hub_name='Auto Mňau')
 	hub = MoveHub(conn)
 
