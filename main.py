@@ -214,6 +214,7 @@ Examples:
         plotter.eject_paper()
         plotter.disconnect()
     
+    print("Press ENTER to quit")
     input()
 
 if __name__ == "__main__":
