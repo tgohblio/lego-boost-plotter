@@ -1,0 +1,12 @@
+[project]
+name = "lego-boost-plotter"
+version = "0.1.0"
+description = "LEGO plotter made from LEGO BOOST set 17101"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "bleak",
+    "pylgbst",
+    "Pillow",
+    "numpy"
+]

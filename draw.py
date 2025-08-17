@@ -1,4 +1,5 @@
-import sys, getopt, random, time, cv2, filetype, pylgbst
+import sys, pylgbst, numpy as np
+from PIL import Image
 from time import sleep
 from pylgbst import *
 from pylgbst.hub import MoveHub
@@ -26,39 +27,45 @@ win = Tk(className='Drawing image')
 canvas = Canvas(win) 
 
 #check if it is valid image
-if not filetype.is_image(file):
+try:
+	with Image.open(file) as test_img:
+		test_img.verify()
+except (IOError, SyntaxError):
 	print('Input file is not an image.')
 	exit()
 
 #Get image dimensions
-img = cv2.imread(file, 0)
-rows, cols, *_ = img.shape
+img = Image.open(file).convert('L')  # Convert to grayscale
+cols, rows = img.size
 
 #Rotate if landscape to portrait
 if cols > rows:	
-	img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
-	rows,cols, *_ = img.shape
+	img = img.transpose(Image.Transpose.ROTATE_90)
+	cols, rows = img.size
  
-#Apply thresold
-_ ,img = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
+#Apply threshold
+img = img.point(lambda x: 255 if x > 127 else 0, mode='1')  # Binary threshold
 
 #Resize to max size (500)
 ratio = maxWidth/cols
 fullWidth = maxWidth
 fullHeight = int(rows * ratio)
 fullDim = (fullWidth, fullHeight) 
-img = cv2.resize(img, fullDim, interpolation = cv2.INTER_NEAREST)
+img = img.resize(fullDim, Image.Resampling.NEAREST)
 
 #resize due to pen size and back
 width = int (fullWidth / step)
 height = int (fullHeight / step) 
 dim = (width, height) 
-img = cv2.resize(img, dim, interpolation = cv2.INTER_NEAREST)
-img = cv2.resize(img, fullDim, interpolation = cv2.INTER_NEAREST)
-rows, cols, *_ = img.shape
+img = img.resize(dim, Image.Resampling.NEAREST)
+img = img.resize(fullDim, Image.Resampling.NEAREST)
+cols, rows = img.size
 
-#and flip vertically
-img = cv2.flip(img, 1)
+#and flip horizontally
+img = img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+
+# Convert to numpy array for pixel access
+img_array = np.array(img)
 
 #cv2.imshow("preview", img) 
 #cv2.waitKey(0) 
@@ -113,7 +120,7 @@ def ejectPaper():
 
 #detect black pixel
 def detectBlack(x,y):
-	if img[y,x] < 128:
+	if img_array[y,x] < 128:
 		return True
 	else:
 		return False
