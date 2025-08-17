@@ -21,27 +21,30 @@ This is a Python script that controls a LEGO plotter built from the LEGO BOOST C
 uv sync
 
 # Run with uv
-uv run python draw.py image.png 2 1
+uv run python main.py image.png 2 --test
 ```
 
 ### Running the Plotter
 ```bash
-# Basic usage: filename, pen strength, test/real mode (0/1)
-python draw.py image.png 2 1
-
-# Test mode (no actual writing, just GUI preview)
-python draw.py image.png 2 0
+# Test mode (GUI preview only, no hardware connection)
+python main.py image.png 2 --test
 
 # Real mode (connects to LEGO hub and draws)
-python draw.py image.png 2 1
+python main.py image.png 2 --real
+
+# Custom hub name and settings
+python main.py photo.jpg 3 --real --hub "My Hub" --max-width 600
+
+# Get help with all available options
+python main.py --help
 ```
 
 ## Architecture
 
 ### Core Components
 
-- **draw.py**: Main plotting script with image processing and motor control
-- **main.py**: Simple entry point (currently just prints hello message)
+- **main.py**: Main entry point with image processing, GUI, and coordination logic
+- **draw.py**: PlotterController class for LEGO motor control and sensor feedback
 
 ### Image Processing Pipeline
 
@@ -60,17 +63,24 @@ python draw.py image.png 2 1
 
 ### Key Functions
 
-- `parseLine()`: Processes each image row, detecting black pixels and controlling pen movement
-- `loadPaper()`/`ejectPaper()`: Paper handling using vision sensor
-- `penUp()`/`penDown()`: Pen control via Motor A
-- `moveMotor()`: Generic motor movement wrapper
+**main.py:**
+- `process_image()`: Handles image loading, thresholding, resizing, and conversion
+- `parse_line()`: Processes each image row, detecting black pixels and coordinating with plotter
+- `setup_gui()`: Creates tkinter window for visual feedback
+- `validate_image()`: Uses PIL to verify image file validity
+
+**draw.py (PlotterController class):**
+- `pen_up()`/`pen_down()`: Pen control via Motor A
+- `move_pen()`: Horizontal pen movement via Port C
+- `load_paper()`/`eject_paper()`: Paper handling using vision sensor
+- `move_motor()`: Generic motor movement wrapper
+- `connect()`/`disconnect()`: LEGO hub connection management
 
 ## Known Issues
 
-- Missing `filetype` import in draw.py:29 - this will cause runtime error
-- Hub name hardcoded as "Auto Mňau" in draw.py:194
 - No error handling for Bluetooth connection failures
-- No validation of command line arguments
+- Vision sensor color detection hardcoded to value 10
+- No validation for pen width range (should be 1-5)
 
 ## Hardware Setup
 
@@ -78,4 +88,4 @@ The plotter requires:
 - LEGO BOOST Creative Toolbox set 17101
 - Vision sensor for paper detection
 - Motors connected to ports A (pen), B (paper feed), C (horizontal movement)
-- Bluetooth connection to the hub named "Auto Mňau"
+- Bluetooth connection to the hub named "Boost Hub"

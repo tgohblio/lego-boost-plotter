@@ -7,7 +7,7 @@ from pylgbst.peripherals import EncodedMotor, COLORS, VisionSensor
 class PlotterController:
     """Controls LEGO BOOST plotter motors and sensors"""
     
-    def __init__(self, real_write=True, hub_name='Auto Mňau'):
+    def __init__(self, real_write=True, hub_name='Boost Hub'):
         self.real_write = real_write
         self.hub_name = hub_name
         self.hub = None

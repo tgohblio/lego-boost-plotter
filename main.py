@@ -1,7 +1,9 @@
 import sys
+import argparse
 import numpy as np
+import tkinter as tk
 from PIL import Image
-from tkinter import *
+from tkinter import Canvas
 from draw import PlotterController
 
 def validate_image(file_path):
@@ -66,16 +68,16 @@ def check_line(img_array, y, cols, step):
 
 def setup_gui(full_width, full_height, cols, rows):
     """Setup tkinter GUI for visual feedback"""
-    win = Tk(className='Drawing image')
+    win = tk.Tk(className='Drawing image')
     canvas = Canvas(win)
-    
+
     win_size = str(full_width) + "x" + str(full_height)
     win.geometry(win_size)
     win.update_idletasks()
     win.update()
     
     canvas.configure(width=cols, height=rows)
-    canvas.pack(anchor=NW)
+    canvas.pack(anchor=tk.NW)
     
     return win, canvas
 
@@ -122,28 +124,57 @@ def parse_line(img_array, y, direction, cols, step, plotter, canvas, win):
         plotter.pen_up()
 
 def main():
-    if len(sys.argv) != 4:
-        print("Usage: python main.py <image_file> <pen_width> <test_mode_0_or_real_mode_1>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(
+        description='LEGO BOOST plotter - converts images to line drawings',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='''
+Examples:
+  python main.py image.png 2 --test     # Test mode (GUI preview only)
+  python main.py image.png 3 --real     # Real mode (connect to LEGO hub)
+  python main.py photo.jpg 1 --real --hub "My Hub"  # Custom hub name
+        '''
+    )
     
-    file = sys.argv[1]
-    step = int(sys.argv[2])
-    real_write = int(sys.argv[3]) > 0
+    parser.add_argument('image_file', 
+                       help='Path to the image file to plot')
+    parser.add_argument('pen_width', type=int,
+                       help='Pen width/step size (1-5 recommended)')
     
-    print(str(real_write))
+    mode_group = parser.add_mutually_exclusive_group(required=True)
+    mode_group.add_argument('--test', action='store_true',
+                           help='Test mode: show GUI preview without connecting to LEGO hub')
+    mode_group.add_argument('--real', action='store_true', 
+                           help='Real mode: connect to LEGO hub and plot')
+    
+    parser.add_argument('--hub', default='Boost Hub',
+                       help='LEGO hub name (default: "Boost Hub")')
+    parser.add_argument('--max-width', type=int, default=486,
+                       help='Maximum image width in pixels (default: 486)')
+    
+    args = parser.parse_args()
+    
+    file = args.image_file
+    step = args.pen_width
+    real_write = args.real
+    hub_name = args.hub
+    max_width = args.max_width
+    
+    print(f"Mode: {'Real plotting' if real_write else 'Test mode'}")
+    if real_write:
+        print(f"Hub: {hub_name}")
     
     # Validate image
     if not validate_image(file):
         sys.exit(1)
     
     # Process image
-    img_array, cols, rows, full_width, full_height = process_image(file, step)
+    img_array, cols, rows, full_width, full_height = process_image(file, step, max_width)
     
     # Setup GUI
     win, canvas = setup_gui(full_width, full_height, cols, rows)
     
     # Initialize plotter
-    plotter = PlotterController(real_write)
+    plotter = PlotterController(real_write, hub_name)
     
     if real_write:
         plotter.connect()
