@@ -10,7 +10,8 @@ This is a Python script that controls a LEGO plotter built from the LEGO BOOST C
 
 - `pylgbst`: Controls LEGO BOOST hub via Bluetooth
 - `bleak`: Bluetooth Low Energy communication
-- `cv2` (OpenCV): Image processing and thresholding
+- `pillow`: Image processing and thresholding
+- `numpy`: Array operations for image data
 - `tkinter`: GUI for visual feedback during plotting
 
 ## Common Commands
