@@ -1,5 +1,4 @@
 name: plotter
-run-name: plotter lah
 
 on: [push, workflow_dispatch]
 
@@ -12,3 +11,7 @@ jobs:
 
       - name: print run number
         run: echo "Run number = ${{ github.run_number }}"
+
+      - name: print text if branch is release
+        if: github.ref == 'refs/heads/release'
+        run: echo "You'll see this message on 'release' branch"
