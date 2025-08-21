@@ -15,3 +15,7 @@ jobs:
       - name: print text if branch is release
         if: github.ref == 'refs/heads/release'
         run: echo "You'll see this message on 'release' branch"
+
+      - name: print text if branch is build
+        if: github.ref == 'refs/heads/build'
+        run: echo "You'll see this message on 'build' branch"
