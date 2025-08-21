@@ -1,0 +1,15 @@
+name: plotter
+
+on: 
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-plotter:
+    runs-on:
+      - X64
+      - Linux
+
+    steps:
+      - name: print run number
+        run: echo "Run number: ${{ github.run_number }}"
