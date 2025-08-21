@@ -1,5 +1,4 @@
 name: plotter
-run-name: plotter lah
 
 on: [push, workflow_dispatch]
 
