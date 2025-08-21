@@ -6,10 +6,11 @@ on:
 
 jobs:
   build-plotter:
-    runs-on:
-      - X64
-      - Linux
+    runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout from GitHub
+        uses: actions/checkout@v4
+
       - name: print run number
         run: echo "Run number: ${{ github.run_number }}"
